@@ -1,0 +1,32 @@
+---
+- name: Configure and install essential packages on the new VM
+  hosts: new_vm_to_configure
+  gather_facts: yes
+  remote_user: allysson
+
+  tasks:
+    - name: 1. Test connection to the new VM
+      ansible.builtin.ping:
+
+    - name: 2. Update and upgrade all packages
+      ansible.builtin.apt:
+        update_cache: yes
+        upgrade: dist
+        autoclean: yes
+      become: true
+
+      register: apt_update_result
+      until: apt_update_result is success
+      retries: 5
+      delay: 5
+      
+    - name: 3. Install packages (vim, htop, tcpdump, nmap, telnet)
+      ansible.builtin.apt:
+        name:
+          - vim
+          - htop
+          - tcpdump
+          - nmap
+          - telnet
+        state: present
+      become: true
